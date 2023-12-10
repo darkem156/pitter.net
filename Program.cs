@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Pitter.Controllers;
 using Pitter.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,6 +68,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.UseAuthMiddleware();
 
 app.MapControllerRoute(
     name: "default",

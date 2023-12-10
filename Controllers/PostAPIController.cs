@@ -1,8 +1,5 @@
-using System.Runtime.InteropServices.JavaScript;
+using System.Net;
 using System.Security.Claims;
-using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Pitter.Models;
 
@@ -43,10 +40,8 @@ namespace Pitter.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] PostBody body)
         {
-            ClaimsPrincipal user = HttpContext.User;
-            if (!user.Identity.IsAuthenticated) return Unauthorized();
-            if (body.content == "") return BadRequest();
-            string userID = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string userID = HttpContext.Items["userId"].ToString();
+            if (string.IsNullOrWhiteSpace(body.content)) return BadRequest();
             var post = new Post
             {
                 UserId = userID,
@@ -62,13 +57,11 @@ namespace Pitter.Controllers
         [HttpPut("{id}")]
         public IActionResult Put(long id, [FromBody] PostBody body)
         {
-            ClaimsPrincipal user = HttpContext.User;
-            if (!user.Identity.IsAuthenticated) return Unauthorized();
+            string userID = HttpContext.Items["userId"].ToString();
             Post post = db.Posts.FindAsync(id).Result;
             if (post == null) return NotFound();
-            string userID = user.FindFirst(ClaimTypes.NameIdentifier).Value;
             if (post.UserId != userID) return Unauthorized();
-            if (body.content == "") return BadRequest();
+            if (string.IsNullOrWhiteSpace(body.content)) return BadRequest();
             post.Content = body.content;
             db.Posts.Update(post);
             db.SaveChanges();
@@ -85,11 +78,9 @@ namespace Pitter.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
-            ClaimsPrincipal user = HttpContext.User;
-            if (!user.Identity.IsAuthenticated) return Unauthorized();
             Post post = db.Posts.FindAsync(id).Result;
             if (post == null) return NotFound();
-            string userID = user.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string userID = HttpContext.Items["userId"].ToString();
             if (post.UserId != userID) return Unauthorized();
             db.Posts.Remove(post);
             db.SaveChanges();
