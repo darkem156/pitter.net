@@ -47,5 +47,7 @@ public partial class AspNetUser
 
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 
+    public virtual ICollection<Post> Posts1 { get; set; } = new List<Post>();
+
     public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 }

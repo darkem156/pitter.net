@@ -31,8 +31,6 @@ public partial class PitterContext : DbContext
 
     public virtual DbSet<Post> Posts { get; set; }
 
-    public virtual DbSet<Repitt> Repitts { get; set; }
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=localhost;Database=pitter;User Id=sa;Password=Password1;TrustServerCertificate=True");
@@ -68,6 +66,24 @@ public partial class PitterContext : DbContext
             entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(256);
+
+            entity.HasMany(d => d.Posts1).WithMany(p => p.UsersNavigation)
+                .UsingEntity<Dictionary<string, object>>(
+                    "Repitt",
+                    r => r.HasOne<Post>().WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("repitts_Posts_ID_fk"),
+                    l => l.HasOne<AspNetUser>().WithMany()
+                        .HasForeignKey("UserId")
+                        .HasConstraintName("repitts_AspNetUsers_Id_fk"),
+                    j =>
+                    {
+                        j.HasKey("UserId", "PostId").HasName("repitts_pk");
+                        j.ToTable("repitts", "content");
+                        j.IndexerProperty<string>("UserId").HasColumnName("user_id");
+                        j.IndexerProperty<long>("PostId").HasColumnName("post_id");
+                    });
 
             entity.HasMany(d => d.Roles).WithMany(p => p.Users)
                 .UsingEntity<Dictionary<string, object>>(
@@ -166,21 +182,6 @@ public partial class PitterContext : DbContext
                         j.IndexerProperty<long>("PostId").HasColumnName("post_id");
                         j.IndexerProperty<string>("UserId").HasColumnName("user_id");
                     });
-        });
-
-        modelBuilder.Entity<Repitt>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.PostId }).HasName("repitts_pk");
-
-            entity.ToTable("repitts", "content");
-
-            entity.Property(e => e.UserId).HasColumnName("user_id");
-            entity.Property(e => e.PostId).HasColumnName("post_id");
-
-            entity.HasOne(d => d.Post).WithMany(p => p.Repitts)
-                .HasForeignKey(d => d.PostId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("repitts_Posts_ID_fk");
         });
 
         OnModelCreatingPartial(modelBuilder);

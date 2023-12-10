@@ -15,9 +15,9 @@ public partial class Post
 
     public long? ResponseToPostId { get; set; }
 
-    public virtual ICollection<Repitt> Repitts { get; set; } = new List<Repitt>();
-
     public virtual AspNetUser User { get; set; } = null!;
 
     public virtual ICollection<AspNetUser> Users { get; set; } = new List<AspNetUser>();
+
+    public virtual ICollection<AspNetUser> UsersNavigation { get; set; } = new List<AspNetUser>();
 }
