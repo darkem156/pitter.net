@@ -15,7 +15,7 @@ public class AuthMiddleware
     public async Task Invoke(HttpContext context)
     {
         string method = context.Request.Method;
-        if (method != "GET")
+        if (method != "GET" && context.Request.Path.StartsWithSegments("/api"))
         {
             user = context.User;
             if (!user.Identity.IsAuthenticated)

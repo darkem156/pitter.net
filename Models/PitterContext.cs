@@ -129,12 +129,12 @@ public partial class PitterContext : DbContext
 
         modelBuilder.Entity<Follow>(entity =>
         {
-            entity.HasKey(e => new { e.IdFollowing, e.IdFollower }).HasName("Follows_pk");
+            entity.HasKey(e => new { e.IdFollower, e.IdFollowing }).HasName("Follows_pk");
 
             entity.ToTable("Follows", "users");
 
-            entity.Property(e => e.IdFollowing).HasColumnName("ID_Following");
             entity.Property(e => e.IdFollower).HasColumnName("ID_Follower");
+            entity.Property(e => e.IdFollowing).HasColumnName("ID_Following");
 
             entity.HasOne(d => d.IdFollowerNavigation).WithMany(p => p.Follows)
                 .HasForeignKey(d => d.IdFollower)

@@ -25,7 +25,7 @@ namespace Pitter.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
-            var post = db.Posts.FindAsync(id).Result;
+            var post = db.Posts.Find(id);
             if (post == null) return NotFound();
             var res = new { post };
             return Ok(res);
@@ -58,7 +58,7 @@ namespace Pitter.Controllers
         public IActionResult Put(long id, [FromBody] PostBody body)
         {
             string userID = HttpContext.Items["userId"].ToString();
-            Post post = db.Posts.FindAsync(id).Result;
+            Post post = db.Posts.Find(id);
             if (post == null) return NotFound();
             if (post.UserId != userID) return Unauthorized();
             if (string.IsNullOrWhiteSpace(body.content)) return BadRequest();
@@ -78,7 +78,7 @@ namespace Pitter.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
-            Post post = db.Posts.FindAsync(id).Result;
+            Post post = db.Posts.Find(id);
             if (post == null) return NotFound();
             string userID = HttpContext.Items["userId"].ToString();
             if (post.UserId != userID) return Unauthorized();
